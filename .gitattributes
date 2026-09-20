@@ -6,6 +6,16 @@
 *.meta linguist-generated
 *.physicMaterial linguist-vendored
 *.inputactions linguist-vendored
+*.png linguist-vendored
+*.psd linguist-vendored
+*.uss linguist-vendored
+*.wlt linguist-vendored
+*.json linguist-vendored
 
 # Ensure C# is detected as the primary language
+*.cs linguist-detectable=true
 *.cs linguist-language=C#
+
+# Override for any other files
+* linguist-detectable=false
+*.cs linguist-detectable=true
