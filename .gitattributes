@@ -1,0 +1,11 @@
+# Unity generated - mark as vendored for GitHub linguist
+*.asset linguist-vendored
+*.unity linguist-vendored
+*.prefab linguist-vendored
+*.mat linguist-vendored
+*.meta linguist-generated
+*.physicMaterial linguist-vendored
+*.inputactions linguist-vendored
+
+# Ensure C# is detected as the primary language
+*.cs linguist-language=C#
