@@ -10,7 +10,6 @@ namespace HollowCreek.Utilities
     {
         private static T instance;
         private static readonly object lockObject = new object();
-        private static bool applicationIsQuitting;
 
         /// <summary>
         /// The single instance of this MonoBehaviour.
@@ -20,22 +19,11 @@ namespace HollowCreek.Utilities
         {
             get
             {
-                if (applicationIsQuitting)
-                {
-                    Debug.LogWarning($"[Singleton] Instance of {typeof(T)} already destroyed on application quit.");
-                    return null;
-                }
-
                 lock (lockObject)
                 {
                     if (instance == null)
                     {
                         instance = FindAnyObjectByType<T>();
-
-                        if (instance == null)
-                        {
-                            Debug.LogWarning($"[Singleton] No instance of {typeof(T)} found in the scene.");
-                        }
                     }
 
                     return instance;
@@ -58,11 +46,6 @@ namespace HollowCreek.Utilities
             }
 
             instance = this as T;
-        }
-
-        protected virtual void OnApplicationQuit()
-        {
-            applicationIsQuitting = true;
         }
     }
 }

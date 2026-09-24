@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 322e44264b27cd349b88c2c7bc0f81b1
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/Prefabs/Managers/Insight UI Manager.prefab
+  uploadId: 669794
