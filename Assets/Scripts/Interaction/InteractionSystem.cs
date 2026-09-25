@@ -122,17 +122,13 @@ namespace HollowCreek.Interaction
 
         private void OnPickUpPerformed(InputAction.CallbackContext context)
         {
-            Debug.Log($"[InteractionSystem] PickUp performed. CurrentTarget = {currentTarget}");
-
             if (currentTarget == null)
             {
-                Debug.Log("[InteractionSystem] PickUp cancelled: no target.");
                 return;
             }
 
             if (!currentTarget.CanPickUp())
             {
-                Debug.Log($"[InteractionSystem] PickUp cancelled: {currentTarget} cannot be picked up.");
                 return;
             }
 
@@ -141,11 +137,9 @@ namespace HollowCreek.Interaction
             TextInspectUIManager ui = TextInspectUIManager.instance;
             if (ui != null && ui.IsNoteSheetVisible)
             {
-                Debug.Log("[InteractionSystem] PickUp cancelled: note sheet is visible.");
                 return;
             }
 
-            Debug.Log($"[InteractionSystem] Picking up {currentTarget}.");
             currentTarget.PickUp();
             OnPickedUp?.Invoke(currentTarget);
         }

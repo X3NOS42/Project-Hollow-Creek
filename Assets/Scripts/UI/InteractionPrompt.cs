@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using HollowCreek.UI;
 
 namespace HollowCreek.Interaction
 {
@@ -49,9 +50,13 @@ namespace HollowCreek.Interaction
 
         private void Update()
         {
+            // Hide the prompt while a full-screen note sheet is open.
+            bool noteSheetOpen = TextInspectUIManager.instance != null &&
+                TextInspectUIManager.instance.IsNoteSheetVisible;
+
             // Rebuild prompt text each frame so it updates immediately
             // (e.g. when a key becomes pickable after being examined).
-            if (currentTarget != null)
+            if (currentTarget != null && !noteSheetOpen)
             {
                 string text = currentTarget.GetPrompt();
                 if (currentTarget.CanPickUp())
@@ -65,6 +70,10 @@ namespace HollowCreek.Interaction
                 promptText.text = text;
                 promptText.enabled = true;
                 targetAlpha = 1f;
+            }
+            else if (noteSheetOpen)
+            {
+                targetAlpha = 0f;
             }
 
             // Smooth fade in/out
