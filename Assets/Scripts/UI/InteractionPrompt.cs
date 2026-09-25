@@ -21,6 +21,7 @@ namespace HollowCreek.Interaction
         private TextMeshProUGUI promptText;
         private float targetAlpha;
         private float currentAlpha;
+        private IInteractable currentTarget;
 
         private void Awake()
         {
@@ -48,6 +49,24 @@ namespace HollowCreek.Interaction
 
         private void Update()
         {
+            // Rebuild prompt text each frame so it updates immediately
+            // (e.g. when a key becomes pickable after being examined).
+            if (currentTarget != null)
+            {
+                string text = currentTarget.GetPrompt();
+                if (currentTarget.CanPickUp())
+                {
+                    string pickupPrompt = currentTarget.GetPickupPrompt();
+                    if (!string.IsNullOrEmpty(pickupPrompt))
+                    {
+                        text += "\n" + pickupPrompt;
+                    }
+                }
+                promptText.text = text;
+                promptText.enabled = true;
+                targetAlpha = 1f;
+            }
+
             // Smooth fade in/out
             float speed = targetAlpha > currentAlpha ? fadeInSpeed : fadeOutSpeed;
             currentAlpha = Mathf.Lerp(currentAlpha, targetAlpha, speed * Time.deltaTime);
@@ -62,10 +81,9 @@ namespace HollowCreek.Interaction
 
         private void OnTargetChanged(IInteractable target)
         {
+            currentTarget = target;
             if (target != null)
             {
-                promptText.text = target.GetPrompt();
-                promptText.enabled = true;
                 targetAlpha = 1f;
             }
             else

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using HollowCreek.UI;
 
 namespace HollowCreek.Interaction
 {
@@ -27,24 +28,45 @@ namespace HollowCreek.Interaction
         /// </summary>
         public event Action<IInteractable> OnInteracted;
 
+        /// <summary>
+        /// Fired when the player successfully picks up an object with F.
+        /// </summary>
+        public event Action<IInteractable> OnPickedUp;
+
         private InputActionMap playerMap;
         private InputAction interactAction;
+        private InputAction pickupAction;
         private IInteractable currentTarget;
 
         private void Awake()
         {
             playerMap = inputActions.FindActionMap("Player", throwIfNotFound: true);
             interactAction = playerMap.FindAction("Interact", throwIfNotFound: true);
+            pickupAction = playerMap.FindAction("PickUp");
+
+            if (pickupAction == null)
+            {
+                Debug.LogWarning("[Hollow Creek] 'PickUp' action not found in InputSystem_Actions. " +
+                    "Reimport the input asset (Assets > Reimport or focus the editor) and run 'Setup Interactions'.");
+            }
         }
 
         private void OnEnable()
         {
             interactAction.performed += OnInteractPerformed;
+            if (pickupAction != null)
+            {
+                pickupAction.performed += OnPickUpPerformed;
+            }
         }
 
         private void OnDisable()
         {
             interactAction.performed -= OnInteractPerformed;
+            if (pickupAction != null)
+            {
+                pickupAction.performed -= OnPickUpPerformed;
+            }
         }
 
         private void Update()
@@ -96,6 +118,36 @@ namespace HollowCreek.Interaction
                 currentTarget.Interact();
                 OnInteracted?.Invoke(currentTarget);
             }
+        }
+
+        private void OnPickUpPerformed(InputAction.CallbackContext context)
+        {
+            Debug.Log($"[InteractionSystem] PickUp performed. CurrentTarget = {currentTarget}");
+
+            if (currentTarget == null)
+            {
+                Debug.Log("[InteractionSystem] PickUp cancelled: no target.");
+                return;
+            }
+
+            if (!currentTarget.CanPickUp())
+            {
+                Debug.Log($"[InteractionSystem] PickUp cancelled: {currentTarget} cannot be picked up.");
+                return;
+            }
+
+            // Don't pick up while a full note sheet is on screen (the player is reading).
+            // The small inspect tooltip does NOT block pickup.
+            TextInspectUIManager ui = TextInspectUIManager.instance;
+            if (ui != null && ui.IsNoteSheetVisible)
+            {
+                Debug.Log("[InteractionSystem] PickUp cancelled: note sheet is visible.");
+                return;
+            }
+
+            Debug.Log($"[InteractionSystem] Picking up {currentTarget}.");
+            currentTarget.PickUp();
+            OnPickedUp?.Invoke(currentTarget);
         }
 
         /// <summary>

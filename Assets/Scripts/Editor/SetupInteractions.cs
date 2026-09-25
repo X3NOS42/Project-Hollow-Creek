@@ -199,6 +199,7 @@ namespace HollowCreek.Editor
             if (existing != null)
             {
                 ApplyNoteDisplaySeconds(existing);
+                PositionNameNearDetails(existing);
                 return;
             }
 
@@ -235,6 +236,25 @@ namespace HollowCreek.Editor
 
             Debug.Log("[Hollow Creek] Insight UI Manager added to scene.");
             ApplyNoteDisplaySeconds(instance);
+            PositionNameNearDetails(instance);
+        }
+
+        private static void PositionNameNearDetails(GameObject managerObj)
+        {
+            Transform nameBg = managerObj.transform.Find("Main Details - Canvas/UI - Object Name BG");
+            if (nameBg == null)
+            {
+                return;
+            }
+
+            RectTransform rect = (RectTransform)nameBg;
+            // The details message sits at the bottom of the screen (anchor bottom-center).
+            // Move the object name to sit right above it so they look connected.
+            rect.anchorMin = new Vector2(0.5f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = new Vector2(0f, 165f);
+            Debug.Log("[Hollow Creek] Object name repositioned to sit above the details message.");
         }
 
         private static void ApplyNoteDisplaySeconds(GameObject managerObj)
@@ -508,6 +528,7 @@ namespace HollowCreek.Editor
                 if (noteComp == null) noteComp = noteObj.AddComponent<InteractableNote>();
 
                 var serializedNote = new SerializedObject(noteComp);
+                serializedNote.FindProperty("genericName").stringValue = "Piece of paper";
                 serializedNote.FindProperty("noteTitle").stringValue = "Old Journal Entry";
                 serializedNote.FindProperty("noteText").stringValue =
                     "September 14th\n\nI found something strange in the barn today. The symbols carved into the wall don't match anything I've seen before, and the carving feels fresh. Too fresh.\n\nI tried to trace one of the lines, but my skin went cold the moment I touched it. The lantern flickered. I told myself it was just the wind.\n\nI need to investigate further. Tomorrow, I'll go back with a better light and maybe take a photograph for the records. Something tells me this isn't the last we'll see of those marks.\n\nAlong the way I noticed the cellar door was open again. No one else is supposed to be here this week. I swear I locked it on Sunday.\n\nWhatever is down there... I think it's been watching me through the cracks.";
@@ -547,6 +568,7 @@ namespace HollowCreek.Editor
                 if (shortNote == null) shortNote = shortNoteObj.AddComponent<InteractableNote>();
 
                 var serializedShort = new SerializedObject(shortNote);
+                serializedShort.FindProperty("genericName").stringValue = "Piece of paper";
                 serializedShort.FindProperty("noteTitle").stringValue = "Grocery List";
                 serializedShort.FindProperty("noteText").stringValue =
                     "Milk, eggs, bread.\nDon't forget the bread this time.";
@@ -574,13 +596,6 @@ namespace HollowCreek.Editor
 
                 keyObj.AddComponent<InteractableKeyPickup>();
 
-                var key = keyObj.GetComponent<InteractableKeyPickup>();
-                var serializedKey = new SerializedObject(key);
-                serializedKey.FindProperty("keyId").stringValue = "key_bedroom";
-                serializedKey.FindProperty("keyName").stringValue = "Bedroom Key";
-                serializedKey.FindProperty("promptText").stringValue = "Pick up key";
-                serializedKey.ApplyModifiedProperties();
-
                 Renderer renderer = keyObj.GetComponent<Renderer>();
                 if (renderer != null)
                 {
@@ -591,6 +606,28 @@ namespace HollowCreek.Editor
                     renderer.material = mat;
                 }
             }
+
+            // Always configure the sample key (even if the object already exists)
+            if (keyObj.GetComponent<InteractableKeyPickup>() == null)
+            {
+                keyObj.AddComponent<InteractableKeyPickup>();
+            }
+            {
+                var key = keyObj.GetComponent<InteractableKeyPickup>();
+                var serializedKey = new SerializedObject(key);
+                serializedKey.FindProperty("genericName").stringValue = "Key";
+                serializedKey.FindProperty("keyName").stringValue = "Bedroom Key";
+                serializedKey.FindProperty("mustExamineBeforePickup").boolValue = true;
+                serializedKey.FindProperty("keyId").stringValue = "key_bedroom";
+                serializedKey.FindProperty("promptText").stringValue = "Inspect key";
+                serializedKey.FindProperty("description").stringValue =
+                    "A small brass key with an ornate bow. The tag on it reads 'Bedroom'.";
+                serializedKey.ApplyModifiedProperties();
+            }
+
+            // Always reposition the key onto the table (beside the notes), sitting on the table top
+            keyObj.transform.localScale = new Vector3(0.06f, 0.18f, 0.06f);
+            keyObj.transform.position = new Vector3(tableCenter.x, tableTopY + 0.18f, tableCenter.z - 0.1f);
         }
     }
 }

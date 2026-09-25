@@ -18,6 +18,23 @@ namespace HollowCreek.Interaction
         string GetPrompt();
 
         /// <summary>
+        /// Returns whether the player can pick up this object with F.
+        /// </summary>
+        bool CanPickUp();
+
+        /// <summary>
+        /// Returns the prompt text for picking up this object (F).
+        /// Empty string if this object cannot be picked up.
+        /// </summary>
+        string GetPickupPrompt();
+
+        /// <summary>
+        /// Called when the player presses the pick up button (F) on this object.
+        /// No-op for objects that cannot be picked up.
+        /// </summary>
+        void PickUp();
+
+        /// <summary>
         /// Returns the maximum distance the player can be to interact with this object.
         /// </summary>
         float GetInteractionRange();

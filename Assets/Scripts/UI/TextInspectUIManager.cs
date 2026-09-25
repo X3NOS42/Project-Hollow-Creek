@@ -59,6 +59,9 @@ namespace HollowCreek.UI
             (objectDetailsCanvasGroup != null && objectDetailsCanvasGroup.alpha > 0.01f) ||
             (noteSheetCanvasGroup != null && noteSheetCanvasGroup.alpha > 0.01f);
 
+        public bool IsNoteSheetVisible =>
+            (noteSheetCanvasGroup != null && noteSheetCanvasGroup.alpha > 0.01f);
+
         private void Awake()
         {
             if (instance != null)
@@ -318,10 +321,6 @@ namespace HollowCreek.UI
 
         private static bool WasClosePressed()
         {
-            if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
-            {
-                return true;
-            }
             if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame)
             {
                 return true;
@@ -337,7 +336,7 @@ namespace HollowCreek.UI
             }
 
             isClosing = true;
-            Debug.Log($"[Insight UI] Note closed manually (F / right-click). Visible for {Time.unscaledTime - shownAtTime:F2}s.");
+            Debug.Log($"[Insight UI] Note closed manually (right-click). Visible for {Time.unscaledTime - shownAtTime:F2}s.");
             startTimer = false;
             timer = 0f;
             ClearNoteUI();

@@ -13,6 +13,8 @@ namespace HollowCreek.Interaction
     public class InteractableNote : InteractableObject
     {
         [Header("Note Settings")]
+        [Tooltip("Generic name shown before examining, e.g. \"Piece of paper\".")]
+        [SerializeField] private string genericName = "Piece of paper";
         [SerializeField] private string noteTitle = "Note";
         [SerializeField] [TextArea(5, 20)] private string noteText = "This is a note.";
         [Tooltip("True = show as a full-screen scrollable sheet; False = show as the tooltip/details popup.")]
@@ -22,6 +24,7 @@ namespace HollowCreek.Interaction
 
         private static bool isDisplaying;
         private bool openedThisFrame;
+        private bool hasBeenExamined;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatic()
@@ -45,7 +48,7 @@ namespace HollowCreek.Interaction
                 return;
             }
 
-            ui.ShowName(noteTitle, true);
+            ui.ShowName(GetExaminedName(), true);
             if (displayAsFullSheet)
             {
                 ui.ShowNoteSheet(noteTitle, noteText, displaySeconds);
@@ -55,6 +58,7 @@ namespace HollowCreek.Interaction
                 ui.ShowObjectDetails(noteText, displaySeconds);
             }
 
+            hasBeenExamined = true;
             isDisplaying = true;
             openedThisFrame = true;
         }
@@ -80,7 +84,20 @@ namespace HollowCreek.Interaction
 
         public override string GetPrompt()
         {
-            return $"Press E to read {noteTitle}";
+            // Before examining, the player sees the generic name.
+            // After examining, the prompt reveals the note's title.
+            string name = hasBeenExamined ? noteTitle : GetGenericName();
+            return $"Press E to read {name}";
+        }
+
+        public override string GetGenericName()
+        {
+            return string.IsNullOrEmpty(genericName) ? base.GetGenericName() : genericName;
+        }
+
+        public override string GetExaminedName()
+        {
+            return string.IsNullOrEmpty(noteTitle) ? GetGenericName() : noteTitle;
         }
     }
 }
