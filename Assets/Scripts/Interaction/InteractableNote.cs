@@ -10,11 +10,10 @@ namespace HollowCreek.Interaction
     /// or a full scrollable sheet (displayAsFullSheet = true).
     /// The game keeps running while the note is shown.
     /// </summary>
-    public class InteractableNote : InteractableObject
+    public class InteractableNote : InteractableExaminable
     {
         [Header("Note Settings")]
-        [Tooltip("Generic name shown before examining, e.g. \"Piece of paper\".")]
-        [SerializeField] private string genericName = "Piece of paper";
+        [Tooltip("Name revealed after examining, e.g. \"Old Journal Entry\".")]
         [SerializeField] private string noteTitle = "Note";
         [SerializeField] [TextArea(5, 20)] private string noteText = "This is a note.";
         [Tooltip("True = show as a full-screen scrollable sheet; False = show as the tooltip/details popup.")]
@@ -24,7 +23,10 @@ namespace HollowCreek.Interaction
 
         private static bool isDisplaying;
         private bool openedThisFrame;
-        private bool hasBeenExamined;
+
+        protected override string RevealedName => noteTitle;
+
+        protected override string ExamineVerb => "read";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatic()
@@ -80,24 +82,6 @@ namespace HollowCreek.Interaction
             {
                 isDisplaying = false;
             }
-        }
-
-        public override string GetPrompt()
-        {
-            // Before examining, the player sees the generic name.
-            // After examining, the prompt reveals the note's title.
-            string name = hasBeenExamined ? noteTitle : GetGenericName();
-            return $"Press E to read {name}";
-        }
-
-        public override string GetGenericName()
-        {
-            return string.IsNullOrEmpty(genericName) ? base.GetGenericName() : genericName;
-        }
-
-        public override string GetExaminedName()
-        {
-            return string.IsNullOrEmpty(noteTitle) ? GetGenericName() : noteTitle;
         }
     }
 }

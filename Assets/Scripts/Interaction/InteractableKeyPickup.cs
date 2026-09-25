@@ -8,11 +8,9 @@ namespace HollowCreek.Interaction
     /// A key the player can pick up.
     /// Adds the key to GameManager state and destroys the object.
     /// </summary>
-    public class InteractableKeyPickup : InteractableObject
+    public class InteractableKeyPickup : InteractableExaminable
     {
         [Header("Key Settings")]
-        [Tooltip("Generic name shown before examining, e.g. \"Key\".")]
-        [SerializeField] private string genericName = "Key";
         [Tooltip("Name revealed after examining, e.g. \"Bedroom Key\".")]
         [SerializeField] private string keyName = "Key";
         [Tooltip("If true, the player must examine this key (E) before they can pick it up (F).")]
@@ -28,12 +26,9 @@ namespace HollowCreek.Interaction
         /// </summary>
         public event Action<string> OnKeyPickedUp;
 
-        private bool hasBeenExamined;
+        protected override string RevealedName => keyName;
 
-        public override string GetGenericName()
-        {
-            return string.IsNullOrEmpty(genericName) ? base.GetGenericName() : genericName;
-        }
+        protected override string ExamineVerb => "inspect";
 
         public override void Interact()
         {
@@ -62,23 +57,9 @@ namespace HollowCreek.Interaction
             return true;
         }
 
-        public override string GetPrompt()
-        {
-            // Before examining, the player sees the generic name.
-            // After examining, the prompt reveals the proper name.
-            string name = hasBeenExamined ? keyName : GetGenericName();
-            return $"Press E to inspect {name}";
-        }
-
         public override string GetPickupPrompt()
         {
-            string name = hasBeenExamined ? keyName : GetGenericName();
-            return $"Press F to pick up {name}";
-        }
-
-        public override string GetExaminedName()
-        {
-            return string.IsNullOrEmpty(keyName) ? GetGenericName() : keyName;
+            return $"Press F to pick up {GetDisplayName()}";
         }
 
         public override void PickUp()
