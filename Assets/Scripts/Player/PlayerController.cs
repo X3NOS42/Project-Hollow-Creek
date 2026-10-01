@@ -39,6 +39,13 @@ namespace HollowCreek.Player
         private float currentSpeed;
         private float targetHeight;
 
+        /// <summary>
+        /// The shared Player input map. UI code (the F1 lighting debug menu)
+        /// disables it while open so movement, look, and interact pause while
+        /// the mouse is being used to click buttons.
+        /// </summary>
+        public static InputActionMap PlayerMap { get; private set; }
+
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
@@ -48,6 +55,7 @@ namespace HollowCreek.Player
             moveAction = playerMap.FindAction("Move", throwIfNotFound: true);
             sprintAction = playerMap.FindAction("Sprint", throwIfNotFound: true);
             crouchAction = playerMap.FindAction("Crouch", throwIfNotFound: true);
+            PlayerMap = playerMap;
         }
 
         private void OnEnable()
