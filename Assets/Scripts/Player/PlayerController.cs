@@ -24,9 +24,13 @@ namespace HollowCreek.Player
         [SerializeField] private float crouchTransitionSpeed = 8f;
 
         [Header("Gravity")]
-        [SerializeField] private float gravity = -20f;
+        // Near real-world gravity (9.81). Lower = floatier, higher = snappier.
+        // NOTE: the scene serializes this field, so tune it on the Player's
+        // Inspector - changing the default here only affects newly added Players.
+        [SerializeField] private float gravity = -10f;
         [SerializeField] private float groundCheckDistance = 0.3f;
         [SerializeField] private LayerMask groundMask;
+        [SerializeField] private float terminalVelocity = -55f;
 
         private CharacterController controller;
         private InputActionMap playerMap;
@@ -127,12 +131,28 @@ namespace HollowCreek.Player
             }
 
             velocity.y += gravity * Time.deltaTime;
+            // Cap the fall speed so velocity can never run away (long falls,
+            // stale frames) and teleport the controller on the next Move.
+            velocity.y = Mathf.Max(velocity.y, terminalVelocity);
             controller.Move(velocity * Time.deltaTime);
         }
 
+        /// <summary>
+        /// Grounded check fired from the capsule's bottom sphere so it lines up
+        /// with the feet - transform.position sits at the capsule center, a full
+        /// height/2 above the ground. A groundMask of Nothing (the value the
+        /// scene shipped with) would silently make the ray never hit and let
+        /// gravity accumulate into a snap-teleport on the first step off a ledge,
+        /// so a mask of 0 is treated as Everything.
+        /// </summary>
         private bool IsGrounded()
         {
-            return Physics.Raycast(transform.position, Vector3.down, groundCheckDistance + 0.1f, groundMask);
+            Vector3 origin = transform.position + controller.center;
+            origin.y -= controller.height * 0.5f - controller.radius;
+
+            int maskBits = groundMask.value == 0 ? -1 : groundMask.value;
+            return Physics.Raycast(origin, Vector3.down,
+                controller.radius + groundCheckDistance, maskBits);
         }
 
         private void OnSprintPerformed(InputAction.CallbackContext context)
